@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador Filmes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="tela-intro" class="intro-container">
+        <h1>Gerenciador Filmes</h1>
+        <button onclick="entrarNoApp()">Entrar</button>
+    </div>
+    <div id="app-principal" style="display: none;">
+        
+        <div class="header">
+            <h1>Marcação de Filmes</h1>
+            <button onclick="abrirModal()">+ Adicionar Título</button>
+        </div>
+
+        <div class="kanban-board">
+            <div class="column" id="coluna-1">
+                <h3>Não Quero Assistir</h3>
+                <div class="items"></div>
+            </div>
+            <div class="column" id="coluna-2">
+                <h3>A Assistir</h3>
+                <div class="items"></div>
+            </div>
+            <div class="column" id="coluna-3">
+                <h3>Assistindo</h3>
+                <div class="items"></div>
+            </div>
+            <div class="column" id="coluna-4">
+                <h3>Assistido</h3>
+                <div class="items"></div>
+            </div>
+        </div>
+        
+    </div>
+    <div class="modal" id="modalAdicionar">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color:var(--accent);">Novo Filme/Série</h3>
+            <input type="text" id="titulo" placeholder="Nome do título..." required>
+            <input type="text" id="genero" placeholder="Gênero (ex: Ficção, Comédia...)">
+            <select id="categoria_id">
+                <option value="1">Não Quero Assistir</option>
+                <option value="2" selected>A Assistir</option>
+                <option value="3">Assistindo</option>
+                <option value="4">Assistido</option>
+            </select>
+            
+            <div class="modal-buttons">
+                <button onclick="salvarFilme()" style="flex:1;">Salvar</button>
+                <button class="btn-cancelar" onclick="fecharModal()" style="flex:1;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    <footer class="rodape">
+        <p>Assista Filmes !!!! (se você quiser)</p>
+    </footer>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/filmes';
+        
+        function entrarNoApp() {
+            document.getElementById('tela-intro').style.display = 'none';
+            document.getElementById('app-principal').style.display = 'block';
+        }
+
+        function abrirModal() { document.getElementById('modalAdicionar').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('modalAdicionar').style.display = 'none'; }
+
+        async function carregarFilmes() {
+            try {
+                const response = await fetch(API_URL);
+                const filmes = await response.json();
+                
+                console.log("Filmes vindos do banco:", filmes); 
+
+                document.querySelector('#coluna-1 .items').innerHTML = '';
+                document.querySelector('#coluna-2 .items').innerHTML = '';
+                document.querySelector('#coluna-3 .items').innerHTML = '';
+                document.querySelector('#coluna-4 .items').innerHTML = '';
+
+                filmes.forEach(filme => {
+                    const card = `
+                        <div class="card">
+                            <h4>${filme.titulo}</h4>
+                            <span>🎬 ${filme.genero || 'Sem gênero'}</span>
+                            <br><br>
+                            <button class="btn-excluir" onclick="excluirFilme(${filme.id})">🗑️ Excluir</button>
+                        </div>
+                    `;
+                    
+                    const colunaDestino = document.querySelector(`#coluna-${filme.categoria_id} .items`);
+                    
+                    if (colunaDestino) {
+                        colunaDestino.innerHTML += card;
+                    } else {
+                        console.error(`ERRO: O filme "${filme.titulo}" tem o categoria_id=${filme.categoria_id}, mas essa coluna não existe no HTML!`);
+                    }
+                });
+            } catch (error) {
+                console.error("Erro ao carregar os filmes:", error);
+            }
+        }
+
+        async function salvarFilme() {
+            const titulo = document.getElementById('titulo').value;
+            const genero = document.getElementById('genero').value;
+            const categoria_id = parseInt(document.getElementById('categoria_id').value);
+
+            if (!titulo) return alert('Por favor, preencha o nome do filme!');
+
+            try {
+                const resposta = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ titulo, genero, categoria_id })
+                });
+
+                if (!resposta.ok) {
+                    const erroServidor = await resposta.json();
+                    alert("Erro ao salvar: " + erroServidor.erro);
+                    return;
+                }
+
+                fecharModal();
+                document.getElementById('titulo').value = '';
+                document.getElementById('genero').value = '';
+                document.getElementById('categoria_id').value = '2'; 
+                carregarFilmes();
+            } catch (error) {
+                console.error("Erro de conexão ao salvar:", error);
+                alert("Erro de conexão. O servidor backend está rodando?");
+            }
+        }
+
+        async function excluirFilme(id) {
+            if (!confirm('Deseja mesmo excluir este título?')) return;
+            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            carregarFilmes();
+        }
+
+        carregarFilmes();
+    </script>
+</body>
+</html>
