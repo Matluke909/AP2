@@ -1,170 +1,173 @@
 :root {
-   
-    --bg: #0f172a;          
-    --surface: #1e293b;     
-    --card: #334155;        
-    --border: #475569;      
-    --text: #f8fafc;        
-    --text-muted: #94a3b8;  
-    --accent: #3b82f6;      
-    --danger: #ef4444;      
+    --primary-color: #004b87; 
+    --secondary-color: #f4f6f9; 
+    --text-dark: #333333;
+    --text-light: #ffffff;
+    --danger-color: #dc3545; 
+    --card-bg: #ffffff;
 }
 
 body {
-    
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-    background-color: var(--bg); 
-    color: var(--text); 
-    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--secondary-color);
+    color: var(--text-dark);
+    margin: 0;
     padding: 20px;
-    min-height: 100vh;
-    box-sizing: border-box;
 }
 
-h1, h2, h3, h4 {
-    color: var(--text); 
-}
-
-.header { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    margin-bottom: 20px; 
-    border-bottom: 1px solid var(--border); 
-    padding-bottom: 20px;
-}
-
-button { 
-    background: var(--accent); 
-    color: #ffffff;      
-    border: none; 
-    padding: 10px 20px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-weight: bold; 
-    transition: 0.2s;
-}
-
-button:hover {
-    filter: brightness(1.1); 
-}
-
-.kanban-board { 
-    display: flex; 
-    gap: 20px; 
-    overflow-x: auto; 
-    padding-bottom: 20px; 
-    min-height: 70vh;
-    align-items: flex-start; 
-}
-
-.column { 
-    flex: 1; 
-    min-width: 250px; 
-    background: var(--surface); 
-    border-radius: 12px; 
-    padding: 15px; 
-    border: 1px solid var(--border); 
-}
-
-.column h3 { 
-    text-align: center; 
-    margin-top: 0; 
-    padding-bottom: 10px; 
-    border-bottom: 1px solid var(--border); 
-}
-
-.card { 
-    background: var(--card); 
-    border: 1px solid var(--border); 
-    padding: 15px; 
-    border-radius: 8px; 
-    margin-bottom: 10px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 10px; 
-}
-
-.card h4 { margin: 0; font-size: 16px; }
-
-.card span { 
-    font-size: 13px; 
-    color: var(--text-muted); 
-    font-style: italic; /* Deixa o gênero do filme em itálico */
-}
-
-.card select { 
-    padding: 5px; 
-    background: var(--surface); 
-    color: var(--text); 
-    border: 1px solid var(--border); 
-    border-radius: 4px; 
-}
-
-.card .btn-excluir { 
-    background: var(--danger); 
-    padding: 5px; 
-    font-size: 12px; 
-    margin-top: 5px; 
-}
-.modal { 
-    display: none; 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%; 
-    background: rgba(0,0,0,0.8); 
-    justify-content: center; 
-    align-items: center; 
-}
-
-.modal-content { 
-    background: var(--surface); 
-    padding: 30px; 
-    border-radius: 12px; 
-    border: 1px solid var(--border); 
-    width: 100%; 
-    max-width: 400px; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 15px; 
-}
-
-.modal-content input, .modal-content select { 
-    padding: 10px; 
-    border-radius: 6px; 
-    border: 1px solid var(--border); 
-    background: var(--bg); 
-    color: var(--text); 
-}
-
-.modal-buttons { display: flex; gap: 10px; }
-.btn-cancelar { background: #64748b; }
 .intro-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 80vh; 
     text-align: center;
+    margin-top: 20vh;
 }
 
 .intro-container h1 {
     font-size: 3rem;
-    margin-bottom: 30px;
+    color: var(--primary-color);
 }
 
-.intro-container button {
-    font-size: 1.5rem;
-    padding: 15px 50px;
-    border-radius: 10px;
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #e0e0e0;
 }
+
+.header h1 {
+    color: var(--primary-color);
+    margin: 0;
+}
+
+
+.kanban-board {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding-bottom: 20px;
+}
+
+.column {
+    background-color: #e9ecef;
+    border-radius: 8px;
+    min-width: 280px;
+    flex: 1;
+    padding: 15px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.column h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    text-align: center;
+    border-bottom: 2px solid #dcdcdc;
+    padding-bottom: 10px;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-left: 5px solid var(--primary-color);
+    transition: transform 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+.card h4 {
+    margin: 0 0 10px 0;
+    font-size: 1.1rem;
+}
+
+.card span {
+    color: #555;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+button {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #00335e;
+}
+
+.btn-excluir {
+    background-color: var(--danger-color);
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.btn-excluir:hover {
+    background-color: #b02a37;
+}
+
+.btn-cancelar {
+    background-color: #6c757d;
+}
+
+.btn-cancelar:hover {
+    background-color: #5c636a;
+}
+
+
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box;
+}
+
+input:focus, select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+}
+
 .rodape {
     text-align: center;
-    padding: 20px;
     margin-top: 40px;
-    border-top: 1px solid var(--border);
-    color: var(--text-muted); 
+    color: #888;
     font-size: 0.9rem;
 }

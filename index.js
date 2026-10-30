@@ -1,32 +1,34 @@
-const { 
-  listarCategorias, 
-  listarFilmes, 
-  inserirFilme, 
-  moverFilme, 
-  excluirFilme 
-} = require('./supabase');
+require('dotenv').config();
+const { createClient } = require('@supabase/supabase-js');
 
-async function main() {
-  try {
-    const categorias = await listarCategorias();
-    console.log('--- SUAS COLUNAS DO KANBAN ---');
-    console.log(categorias);
-    console.log('\n--- TENTANDO INSERIR FILME ---');
-    try {
-      const novo = await inserirFilme('Matrix', 'Ficção Científica', 4);
-      console.log('Filme inserido com sucesso:', novo);
-    } catch (e) {
-      console.log('Não inseriu:', e.message || e);
-    }
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
-    console.log('\n--- LISTANDO TODOS OS FILMES ---');
-    const todos = await listarFilmes();
-    console.log(`Total de filmes: ${todos.length}`);
-    console.dir(todos, { depth: null }); 
-
-  } catch (err) {
-    console.error('ERRO GERAL:', err.message || err);
-  }
+async function inserirAluno(nome, ra, curso_id) {
+  const { data, error } = await supabase
+    .from('alunos')
+    .insert([{ nome, ra, curso_id }])
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
-main();
+async function listarAlunos() {
+  const { data, error } = await supabase
+    .from('alunos')
+    .select('id, nome, ra, curso_id');
+  if (error) throw error;
+  return data;
+}
+
+async function excluirAluno(id) {
+  const { data, error } = await supabase
+    .from('alunos')
+    .delete()
+    .eq('id', id)
+    .select();
+  if (error) throw error;
+  return data;
+}
+
+module.exports = { supabase, inserirAluno, listarAlunos, excluirAluno };

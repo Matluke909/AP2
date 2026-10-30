@@ -10,10 +10,10 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function inserirFilme(titulo, genero, categoria_id) {
+async function inserirAluno(nome, ra, curso_id) {
   const { data, error } = await supabase
-    .from('filmes')
-    .insert([{ titulo, genero, categoria_id }])
+    .from('alunos')
+    .insert([{ nome, ra, curso_id }])
     .select()
     .single();
 
@@ -21,40 +21,29 @@ async function inserirFilme(titulo, genero, categoria_id) {
   return data;
 }
 
-async function listarFilmes() {
+async function listarAlunos() {
   const { data, error } = await supabase
-    .from('filmes')
-    .select('id, titulo, genero, categoria_id');
+    .from('alunos')
+    .select('id, nome, ra, curso_id');
 
   if (error) throw error;
   return data;
 }
 
-async function moverFilme(id, nova_categoria_id) {
+async function excluirAluno(id) {
   const { data, error } = await supabase
-    .from('filmes')
-    .update({ categoria_id: nova_categoria_id })
-    .eq('id', id)
-    .select();
-
-  if (error) throw error;
-  return data;
-}
-
-async function excluirFilme(id) {
-  const { data, error } = await supabase
-    .from('filmes')
+    .from('alunos')
     .delete()
     .eq('id', id)
     .select();
+
   if (error) throw error;
   return data;
 }
 
 module.exports = {
   supabase,
-  inserirFilme,
-  listarFilmes,
-  moverFilme,
-  excluirFilme,
+  inserirAluno,
+  listarAlunos,
+  excluirAluno,
 };

@@ -1,49 +1,42 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors'); 
-const { inserirFilme, listarFilmes, moverFilme, excluirFilme } = require('./supabase');
+const { inserirAluno, listarAlunos, excluirAluno } = require('./supabase');
+
 const app = express();
 app.use(cors()); 
 app.use(express.json());
 app.use(express.static('frontend')); 
-app.get('/filmes', async (req, res) => {
+
+app.get('/alunos', async (req, res) => {
   try {
-    const dados = await listarFilmes();
+    const dados = await listarAlunos();
     res.json(dados);
   } catch (e) {
     res.status(500).json({ erro: e.message });
   }
 });
-app.post('/filmes', async (req, res) => {
+
+app.post('/alunos', async (req, res) => {
   try {
-    const { titulo, genero, categoria_id } = req.body;
-    if (!titulo) {
-      return res.status(400).json({ erro: 'O título é obrigatório' });
-    }
-    const idDaColuna = categoria_id || 2;
-    const filme = await inserirFilme(titulo, genero, idDaColuna);
-    res.status(201).json(filme);
+    const { nome, ra, curso_id } = req.body;
+    if (!nome || !ra) return res.status(400).json({ erro: 'Nome e RA são obrigatórios' });
+    
+    const aluno = await inserirAluno(nome, ra, curso_id || 1);
+    res.status(201).json(aluno);
   } catch (e) {
     res.status(400).json({ erro: e.message });
   }
 });
-app.put('/filmes/:id', async (req, res) => {
+
+app.delete('/alunos/:id', async (req, res) => {
   try {
-    const data = await moverFilme(req.params.id, req.body.categoria_id);
+    const data = await excluirAluno(req.params.id);
     res.json(data);
   } catch (e) {
     res.status(400).json({ erro: e.message });
   }
 });
-app.delete('/filmes/:id', async (req, res) => {
-  try {
-    const data = await excluirFilme(req.params.id);
-    res.json(data);
-  } catch (e) {
-    res.status(400).json({ erro: e.message });
-  }
-});
+
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`API de Filmes a rodar em http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`API Escolar rodando em http://localhost:${PORT}`));

@@ -3,36 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador Filmes</title>
+    <title>Gerenciador Escolar</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="tela-intro" class="intro-container">
-        <h1>Gerenciador Filmes</h1>
+        <h1>Sistema Escolar</h1>
         <button onclick="entrarNoApp()">Entrar</button>
     </div>
     <div id="app-principal" style="display: none;">
         
         <div class="header">
-            <h1>Marcação de Filmes</h1>
-            <button onclick="abrirModal()">+ Adicionar Título</button>
+            <h1>Painel de Alunos</h1>
+            <button onclick="abrirModal()">+ Matricular Aluno</button>
         </div>
 
         <div class="kanban-board">
             <div class="column" id="coluna-1">
-                <h3>Não Quero Assistir</h3>
+                <h3>Análise e Desenv. de Sistemas</h3>
                 <div class="items"></div>
             </div>
             <div class="column" id="coluna-2">
-                <h3>A Assistir</h3>
+                <h3>Engenharia de Software</h3>
                 <div class="items"></div>
             </div>
             <div class="column" id="coluna-3">
-                <h3>Assistindo</h3>
+                <h3>Redes de Computadores</h3>
                 <div class="items"></div>
             </div>
             <div class="column" id="coluna-4">
-                <h3>Assistido</h3>
+                <h3>Banco de Dados</h3>
                 <div class="items"></div>
             </div>
         </div>
@@ -40,28 +40,28 @@
     </div>
     <div class="modal" id="modalAdicionar">
         <div class="modal-content">
-            <h3 style="margin-top:0; color:var(--accent);">Novo Filme/Série</h3>
-            <input type="text" id="titulo" placeholder="Nome do título..." required>
-            <input type="text" id="genero" placeholder="Gênero (ex: Ficção, Comédia...)">
-            <select id="categoria_id">
-                <option value="1">Não Quero Assistir</option>
-                <option value="2" selected>A Assistir</option>
-                <option value="3">Assistindo</option>
-                <option value="4">Assistido</option>
+            <h3 style="margin-top:0; color:var(--accent);">Nova Matrícula</h3>
+            <input type="text" id="nome" placeholder="Nome do Aluno..." required>
+            <input type="text" id="ra" placeholder="RA (Registro Acadêmico)..." required>
+            <select id="curso_id">
+                <option value="1" selected>Análise e Desenv. de Sistemas</option>
+                <option value="2">Engenharia de Software</option>
+                <option value="3">Redes de Computadores</option>
+                <option value="4">Banco de Dados</option>
             </select>
             
             <div class="modal-buttons">
-                <button onclick="salvarFilme()" style="flex:1;">Salvar</button>
+                <button onclick="salvarAluno()" style="flex:1;">Matricular</button>
                 <button class="btn-cancelar" onclick="fecharModal()" style="flex:1;">Cancelar</button>
             </div>
         </div>
     </div>
     <footer class="rodape">
-        <p>Assista Filmes !!!! (se você quiser)</p>
+        <p>Gestão Acadêmica</p>
     </footer>
     
     <script>
-        const API_URL = 'http://localhost:3000/filmes';
+        const API_URL = 'http://localhost:3000/alunos';
         
         function entrarNoApp() {
             document.getElementById('tela-intro').style.display = 'none';
@@ -71,79 +71,63 @@
         function abrirModal() { document.getElementById('modalAdicionar').style.display = 'flex'; }
         function fecharModal() { document.getElementById('modalAdicionar').style.display = 'none'; }
 
-        async function carregarFilmes() {
+        async function carregarAlunos() {
             try {
                 const response = await fetch(API_URL);
-                const filmes = await response.json();
-                
-                console.log("Filmes vindos do banco:", filmes); 
+                const alunos = await response.json();
 
                 document.querySelector('#coluna-1 .items').innerHTML = '';
                 document.querySelector('#coluna-2 .items').innerHTML = '';
                 document.querySelector('#coluna-3 .items').innerHTML = '';
                 document.querySelector('#coluna-4 .items').innerHTML = '';
 
-                filmes.forEach(filme => {
+                alunos.forEach(aluno => {
                     const card = `
                         <div class="card">
-                            <h4>${filme.titulo}</h4>
-                            <span>🎬 ${filme.genero || 'Sem gênero'}</span>
+                            <h4>${aluno.nome}</h4>
+                            <span>📚 RA: ${aluno.ra}</span>
                             <br><br>
-                            <button class="btn-excluir" onclick="excluirFilme(${filme.id})">🗑️ Excluir</button>
+                            <button class="btn-excluir" onclick="excluirAluno(${aluno.id})">🗑️ Desmatricular</button>
                         </div>
                     `;
                     
-                    const colunaDestino = document.querySelector(`#coluna-${filme.categoria_id} .items`);
-                    
+                    const colunaDestino = document.querySelector(`#coluna-${aluno.curso_id} .items`);
                     if (colunaDestino) {
                         colunaDestino.innerHTML += card;
-                    } else {
-                        console.error(`ERRO: O filme "${filme.titulo}" tem o categoria_id=${filme.categoria_id}, mas essa coluna não existe no HTML!`);
                     }
                 });
             } catch (error) {
-                console.error("Erro ao carregar os filmes:", error);
+                console.error("Erro ao carregar alunos:", error);
             }
         }
 
-        async function salvarFilme() {
-            const titulo = document.getElementById('titulo').value;
-            const genero = document.getElementById('genero').value;
-            const categoria_id = parseInt(document.getElementById('categoria_id').value);
+        async function salvarAluno() {
+            const nome = document.getElementById('nome').value;
+            const ra = document.getElementById('ra').value;
+            const curso_id = parseInt(document.getElementById('curso_id').value);
 
-            if (!titulo) return alert('Por favor, preencha o nome do filme!');
+            if (!nome || !ra) return alert('Por favor, preencha o Nome e o RA!');
 
-            try {
-                const resposta = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ titulo, genero, categoria_id })
-                });
+            await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nome, ra, curso_id })
+            });
 
-                if (!resposta.ok) {
-                    const erroServidor = await resposta.json();
-                    alert("Erro ao salvar: " + erroServidor.erro);
-                    return;
-                }
-
-                fecharModal();
-                document.getElementById('titulo').value = '';
-                document.getElementById('genero').value = '';
-                document.getElementById('categoria_id').value = '2'; 
-                carregarFilmes();
-            } catch (error) {
-                console.error("Erro de conexão ao salvar:", error);
-                alert("Erro de conexão. O servidor backend está rodando?");
-            }
+            fecharModal();
+            document.getElementById('nome').value = '';
+            document.getElementById('ra').value = '';
+            document.getElementById('curso_id').value = '1'; 
+            carregarAlunos();
         }
 
-        async function excluirFilme(id) {
-            if (!confirm('Deseja mesmo excluir este título?')) return;
+        async function excluirAluno(id) {
+            if (!confirm('Deseja mesmo remover esta matrícula?')) return;
             await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            carregarFilmes();
+            carregarAlunos();
         }
 
-        carregarFilmes();
+        carregarAlunos();
     </script>
 </body>
 </html>
