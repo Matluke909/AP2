@@ -1,133 +1,82 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciador Escolar</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Alunos</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div id="tela-intro" class="intro-container">
-        <h1>Sistema Escolar</h1>
-        <button onclick="entrarNoApp()">Entrar</button>
-    </div>
-    <div id="app-principal" style="display: none;">
-        
-        <div class="header">
-            <h1>Painel de Alunos</h1>
-            <button onclick="abrirModal()">+ Matricular Aluno</button>
+  <div class="app">
+    <header class="topo">
+      <div>
+        <h1>Cadastro de Alunos</h1>
+        <p class="subtitulo">Cursos e alunos: um curso tem vários alunos (1:N)</p>
+      </div>
+      <button type="button" id="btn-novo" class="btn btn-primario">+ Novo aluno</button>
+    </header>
+
+    <div id="msg" class="msg" hidden></div>
+    <section class="painel">
+      <div class="painel-cabecalho">
+        <h2>Cursos</h2>
+        <form id="form-curso" class="form-linha">
+          <input id="novo-curso" type="text" placeholder="Nome do novo curso" required />
+          <button type="submit" class="btn btn-primario">Adicionar curso</button>
+        </form>
+      </div>
+      <table>
+        <thead>
+          <tr> <th>Curso</th> <th>Alunos</th> <th class="acoes">Ações</th> </tr>
+        </thead>
+        <tbody id="tabela-cursos">
+          <tr><td colspan="3" class="vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section class="painel">
+      <div class="painel-cabecalho">
+        <h2>Alunos cadastrados</h2>
+        <div class="filtros">
+          <select id="filtro-curso">
+            <option value="">Todos os cursos</option>
+          </select>
+          <button type="button" id="btn-atualizar" class="btn btn-secundario">Atualizar lista</button>
         </div>
+      </div>
+      <table>
+        <thead>
+          <tr> <th>Nome</th> <th>RA</th> <th>Curso</th> <th class="acoes">Ações</th> </tr>
+        </thead>
+        <tbody id="tabela-alunos">
+          <tr><td colspan="4" class="vazio">Carregando...</td></tr>
+        </tbody>
+      </table>
+      <p id="alunos-status" class="rolagem-status">Carregando...</p>
+      <div id="sentinela-alunos" aria-hidden="true"></div>
+    </section>
+  </div>
 
-        <div class="kanban-board">
-            <div class="column" id="coluna-1">
-                <h3>Análise e Desenv. de Sistemas</h3>
-                <div class="items"></div>
-            </div>
-            <div class="column" id="coluna-2">
-                <h3>Engenharia de Software</h3>
-                <div class="items"></div>
-            </div>
-            <div class="column" id="coluna-3">
-                <h3>Redes de Computadores</h3>
-                <div class="items"></div>
-            </div>
-            <div class="column" id="coluna-4">
-                <h3>Banco de Dados</h3>
-                <div class="items"></div>
-            </div>
+ 
+  <div id="modal" class="modal" hidden>
+    <div class="modal-fundo" id="modal-fundo"></div>
+    <div class="modal-caixa" role="dialog" aria-modal="true">
+      <h2 id="modal-titulo">Novo aluno</h2>
+      <form id="form-aluno">
+        <label>Nome <input id="nome" type="text" required autocomplete="off" /></label>
+        <label>RA <input id="ra" type="text" required autocomplete="off" /></label>
+        <label>Curso
+          <input id="curso" list="lista-cursos" type="text" placeholder="Digite ou escolha um curso" required autocomplete="off" />
+          <datalist id="lista-cursos"></datalist>
+        </label>
+        <div class="modal-acoes">
+          <button type="button" id="btn-cancelar" class="btn btn-secundario">Cancelar</button>
+          <button type="submit" class="btn btn-primario">Salvar</button>
         </div>
-        
+      </form>
     </div>
-    <div class="modal" id="modalAdicionar">
-        <div class="modal-content">
-            <h3 style="margin-top:0; color:var(--accent);">Nova Matrícula</h3>
-            <input type="text" id="nome" placeholder="Nome do Aluno..." required>
-            <input type="text" id="ra" placeholder="RA (Registro Acadêmico)..." required>
-            <select id="curso_id">
-                <option value="1" selected>Análise e Desenv. de Sistemas</option>
-                <option value="2">Engenharia de Software</option>
-                <option value="3">Redes de Computadores</option>
-                <option value="4">Banco de Dados</option>
-            </select>
-            
-            <div class="modal-buttons">
-                <button onclick="salvarAluno()" style="flex:1;">Matricular</button>
-                <button class="btn-cancelar" onclick="fecharModal()" style="flex:1;">Cancelar</button>
-            </div>
-        </div>
-    </div>
-    <footer class="rodape">
-        <p>Gestão Acadêmica</p>
-    </footer>
-    
-    <script>
-        const API_URL = 'http://localhost:3000/alunos';
-        
-        function entrarNoApp() {
-            document.getElementById('tela-intro').style.display = 'none';
-            document.getElementById('app-principal').style.display = 'block';
-        }
+  </div>
 
-        function abrirModal() { document.getElementById('modalAdicionar').style.display = 'flex'; }
-        function fecharModal() { document.getElementById('modalAdicionar').style.display = 'none'; }
-
-        async function carregarAlunos() {
-            try {
-                const response = await fetch(API_URL);
-                const alunos = await response.json();
-
-                document.querySelector('#coluna-1 .items').innerHTML = '';
-                document.querySelector('#coluna-2 .items').innerHTML = '';
-                document.querySelector('#coluna-3 .items').innerHTML = '';
-                document.querySelector('#coluna-4 .items').innerHTML = '';
-
-                alunos.forEach(aluno => {
-                    const card = `
-                        <div class="card">
-                            <h4>${aluno.nome}</h4>
-                            <span>📚 RA: ${aluno.ra}</span>
-                            <br><br>
-                            <button class="btn-excluir" onclick="excluirAluno(${aluno.id})">🗑️ Desmatricular</button>
-                        </div>
-                    `;
-                    
-                    const colunaDestino = document.querySelector(`#coluna-${aluno.curso_id} .items`);
-                    if (colunaDestino) {
-                        colunaDestino.innerHTML += card;
-                    }
-                });
-            } catch (error) {
-                console.error("Erro ao carregar alunos:", error);
-            }
-        }
-
-        async function salvarAluno() {
-            const nome = document.getElementById('nome').value;
-            const ra = document.getElementById('ra').value;
-            const curso_id = parseInt(document.getElementById('curso_id').value);
-
-            if (!nome || !ra) return alert('Por favor, preencha o Nome e o RA!');
-
-            await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nome, ra, curso_id })
-            });
-
-            fecharModal();
-            document.getElementById('nome').value = '';
-            document.getElementById('ra').value = '';
-            document.getElementById('curso_id').value = '1'; 
-            carregarAlunos();
-        }
-
-        async function excluirAluno(id) {
-            if (!confirm('Deseja mesmo remover esta matrícula?')) return;
-            await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            carregarAlunos();
-        }
-
-        carregarAlunos();
-    </script>
+  <script src="app.js"></script>
 </body>
 </html>
