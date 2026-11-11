@@ -12,7 +12,11 @@ const formCurso = document.getElementById('form-curso');
 const inputNovoCurso = document.getElementById('novo-curso');
 const alunosStatus = document.getElementById('alunos-status');
 const sentinelaAlunos = document.getElementById('sentinela-alunos');
+const formBusca = document.getElementById('form-busca');
+const inputBusca = document.getElementById('busca-aluno');
+const criterioPesquisa = document.getElementById('criterio-pesquisa');
 
+let alunosBusca = '';
 let modo = 'criar';
 let raEditando = '';
 let cursosCache = [];
@@ -162,6 +166,53 @@ function fecharModal() {
   inputRa.disabled = false;
 }
 
+function atualizarCriterioPesquisa() {
+  criterioPesquisa.innerHTML = '';
+  if (!alunosBusca) {
+    criterioPesquisa.hidden = true;
+    return;
+  }
+
+  const rotulo = document.createElement('span');
+  rotulo.className = 'criterio-rotulo';
+  rotulo.textContent = 'Critério de pesquisa:';
+
+  const nuvem = document.createElement('span');
+  nuvem.className = 'nuvem-filtro';
+
+  const texto = document.createElement('span');
+  texto.className = 'nuvem-filtro-texto';
+  texto.textContent = alunosBusca;
+
+  const btnLimpar = document.createElement('button');
+  btnLimpar.type = 'button';
+  btnLimpar.className = 'nuvem-filtro-limpar';
+  btnLimpar.textContent = '×';
+  btnLimpar.addEventListener('click', limparBusca);
+
+  nuvem.appendChild(texto);
+  nuvem.appendChild(btnLimpar);
+  criterioPesquisa.appendChild(rotulo);
+  criterioPesquisa.appendChild(nuvem);
+  criterioPesquisa.hidden = false;
+}
+
+function limparBusca() {
+  inputBusca.value = '';
+  alunosBusca = '';
+  atualizarCriterioPesquisa();
+  alunosInicio = 0;
+  listarAlunos(false);
+}
+
+function pesquisarAlunos(evento) {
+  evento.preventDefault();
+  alunosBusca = inputBusca.value.trim();
+  atualizarCriterioPesquisa();
+  alunosInicio = 0;
+  listarAlunos(false);
+}
+
 function linhaAluno(aluno) {
   const tr = document.createElement('tr');
   
@@ -208,10 +259,14 @@ async function listarAlunos(acrescentar = false) {
   
   const cursoId = filtroCurso.value;
   const base = cursoId ? `/cursos/${cursoId}/alunos` : '/alunos';
-  const url = `${base}?inicio=${inicio}&limite=${ALUNOS_POR_PAGINA}`;
-  
+  const params = new URLSearchParams({
+    inicio: String(inicio),
+    limite: String(ALUNOS_POR_PAGINA),
+  });
+  if (alunosBusca) params.set('busca', alunosBusca);
+
   try {
-    const resposta = await fetch(url);
+    const resposta = await fetch(`${base}?${params.toString()}`);
     const dados = await resposta.json();
     
     if (pedido !== alunosPedido) return;
@@ -358,6 +413,7 @@ document.getElementById('modal-fundo').addEventListener('click', fecharModal);
 
 form.addEventListener('submit', salvarAluno);
 formCurso.addEventListener('submit', adicionarCurso);
+formBusca.addEventListener('submit', pesquisarAlunos);
 filtroCurso.addEventListener('change', () => {
   alunosInicio = 0;
   listarAlunos(false);

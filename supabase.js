@@ -33,12 +33,15 @@ async function inserirAluno(nome, ra, cursoId) {
   return data;
 }
 
-async function listarAlunos({ inicio = 0, limite, cursoId } = {}) {
+async function listarAlunos({ inicio = 0, limite, cursoId, busca } = {}) {
   let consulta = supabase
     .from('alunos')
     .select(COLUNAS_ALUNO, limite ? { count: 'exact' } : undefined);
 
   if (cursoId) consulta = consulta.eq('curso_id', cursoId);
+  if (busca) {
+    consulta = consulta.or(`nome.ilike.%${busca}%,ra.ilike.%${busca}%`);
+  }
   consulta = consulta.order(cursoId ? 'nome' : 'id', { ascending: true });
   if (limite) consulta = consulta.range(inicio, inicio + limite - 1);
 
@@ -47,7 +50,6 @@ async function listarAlunos({ inicio = 0, limite, cursoId } = {}) {
   if (!limite) return data || [];
   return { alunos: data || [], total: count ?? 0 };
 }
-
 async function listarAlunosDoCurso(cursoId, opcoes = {}) {
   return listarAlunos({ ...opcoes, cursoId });
 }

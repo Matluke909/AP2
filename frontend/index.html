@@ -1,52 +1,69 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cadastro de Alunos</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app">
-    <header class="topo">
+    <div class="topo">
       <div>
         <h1>Cadastro de Alunos</h1>
-        <p class="subtitulo">Cursos e alunos: um curso tem vários alunos (1:N)</p>
+        <p class="subtitulo">Cursos e alunos: um curso tem vários alunos (1:N). A lista carrega ao rolar a tela.</p>
       </div>
-      <button type="button" id="btn-novo" class="btn btn-primario">+ Novo aluno</button>
-    </header>
+      <button id="btn-novo" class="btn btn-primario">+ Novo aluno</button>
+    </div>
 
     <div id="msg" class="msg" hidden></div>
-    <section class="painel">
+
+    <div class="painel">
       <div class="painel-cabecalho">
         <h2>Cursos</h2>
         <form id="form-curso" class="form-linha">
-          <input id="novo-curso" type="text" placeholder="Nome do novo curso" required />
+          <input type="text" id="novo-curso" placeholder="Nome do novo curso" required>
           <button type="submit" class="btn btn-primario">Adicionar curso</button>
         </form>
       </div>
       <table>
         <thead>
-          <tr> <th>Curso</th> <th>Alunos</th> <th class="acoes">Ações</th> </tr>
+          <tr>
+            <th>Curso</th>
+            <th>Alunos</th>
+            <th class="acoes">Ações</th>
+          </tr>
         </thead>
         <tbody id="tabela-cursos">
-          <tr><td colspan="3" class="vazio">Carregando...</td></tr>
+          <tr><td colspan="3" class="vazio">Carregando cursos...</td></tr>
         </tbody>
       </table>
-    </section>
-    <section class="painel">
+    </div>
+
+    <div class="painel">
       <div class="painel-cabecalho">
         <h2>Alunos cadastrados</h2>
         <div class="filtros">
           <select id="filtro-curso">
             <option value="">Todos os cursos</option>
           </select>
-          <button type="button" id="btn-atualizar" class="btn btn-secundario">Atualizar lista</button>
+          <button id="btn-atualizar" class="btn btn-secundario">Atualizar lista</button>
         </div>
       </div>
+      <form id="form-busca" class="busca-linha">
+        <input id="busca-aluno" type="search" placeholder="Pesquisar por nome ou RA" />
+        <button type="submit" class="btn btn-primario">Pesquisar</button>
+      </form>
+      <div id="criterio-pesquisa" class="criterio-pesquisa" hidden></div>
+  
       <table>
         <thead>
-          <tr> <th>Nome</th> <th>RA</th> <th>Curso</th> <th class="acoes">Ações</th> </tr>
+          <tr>
+            <th>Nome</th>
+            <th>RA</th>
+            <th>Curso</th>
+            <th class="acoes">Ações</th>
+          </tr>
         </thead>
         <tbody id="tabela-alunos">
           <tr><td colspan="4" class="vazio">Carregando...</td></tr>
@@ -54,19 +71,17 @@
       </table>
       <p id="alunos-status" class="rolagem-status">Carregando...</p>
       <div id="sentinela-alunos" aria-hidden="true"></div>
-    </section>
+    </div>
   </div>
-
- 
   <div id="modal" class="modal" hidden>
-    <div class="modal-fundo" id="modal-fundo"></div>
-    <div class="modal-caixa" role="dialog" aria-modal="true">
+    <div id="modal-fundo" class="modal-fundo"></div>
+    <div class="modal-caixa">
       <h2 id="modal-titulo">Novo aluno</h2>
       <form id="form-aluno">
-        <label>Nome <input id="nome" type="text" required autocomplete="off" /></label>
-        <label>RA <input id="ra" type="text" required autocomplete="off" /></label>
-        <label>Curso
-          <input id="curso" list="lista-cursos" type="text" placeholder="Digite ou escolha um curso" required autocomplete="off" />
+        <label>Nome <input type="text" id="nome" required></label>
+        <label>RA <input type="text" id="ra" required></label>
+        <label>Curso 
+          <input type="text" id="curso" list="lista-cursos" required autocomplete="off" placeholder="Digite o curso">
           <datalist id="lista-cursos"></datalist>
         </label>
         <div class="modal-acoes">

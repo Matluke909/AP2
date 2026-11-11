@@ -28,6 +28,10 @@ function lerPagina(query) {
   return { inicio, limite };
 }
 
+function lerBusca(query) {
+  return query.busca ? String(query.busca).trim() : '';
+}
+
 app.get('/cursos', async (req, res) => {
   try {
     res.json(await listarCursos());
@@ -61,7 +65,8 @@ app.get('/cursos/:id/alunos', async (req, res) => {
   try {
     const pagina = lerPagina(req.query);
     if (pagina && pagina.erro) return res.status(400).json({ erro: pagina.erro });
-    const dados = await listarAlunosDoCurso(req.params.id, pagina || {});
+    const busca = lerBusca(req.query);
+    const dados = await listarAlunosDoCurso(req.params.id, { ...(pagina || {}), busca });
     res.json(pagina ? { ...dados, inicio: pagina.inicio, limite: pagina.limite } : dados);
   } catch (e) {
     res.status(500).json({ erro: e.message });
@@ -72,7 +77,8 @@ app.get('/alunos', async (req, res) => {
   try {
     const pagina = lerPagina(req.query);
     if (pagina && pagina.erro) return res.status(400).json({ erro: pagina.erro });
-    const dados = await listarAlunos(pagina || {});
+    const busca = lerBusca(req.query);
+    const dados = await listarAlunos({ ...(pagina || {}), busca });
     res.json(pagina ? { ...dados, inicio: pagina.inicio, limite: pagina.limite } : dados);
   } catch (e) {
     res.status(500).json({ erro: e.message });

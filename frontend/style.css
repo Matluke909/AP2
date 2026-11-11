@@ -67,6 +67,63 @@ h1, h2 { margin: 0 0 0.5rem 0; }
 .form-linha input { width: 220px; }
 .filtros select { width: auto; }
 
+/* BARRA DE PESQUISA E NUVEM */
+.busca-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  margin-top: 0;
+}
+
+.criterio-pesquisa {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+}
+
+.criterio-pesquisa[hidden] {
+  display: none !important;
+}
+
+.criterio-rotulo {
+  color: var(--muted);
+}
+
+.nuvem-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.35rem 0.35rem 0.85rem;
+  border-radius: 999px; 
+  background: #e7f6ee;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.nuvem-filtro-limpar {
+  width: 1.45rem;
+  height: 1.45rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.nuvem-filtro-limpar:hover {
+  background: rgba(15, 110, 86, 0.15);
+}
+
 table { width: 100%; border-collapse: collapse; text-align: left; }
 th, td {
   padding: 0.85rem 1.25rem;
@@ -93,6 +150,7 @@ tbody tr:hover td { background: #f8fbfc; }
 .btn-primario { background: var(--primary); color: #fff; border-color: var(--primary); }
 .btn-primario:hover { background: #0c5c48; }
 .btn-secundario { background: transparent; }
+.btn-perigo { color: var(--danger); border-color: #f9d8d6; background: var(--danger-soft); }
 
 .msg {
   padding: 1rem;
@@ -143,6 +201,6 @@ input:disabled { background: #f3f5f7; color: var(--muted); cursor: not-allowed; 
 .modal-acoes { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.5rem; }
 
 @media (max-width: 640px) {
-  .topo, .painel-cabecalho { flex-direction: column; align-items: stretch; }
+  .topo, .painel-cabecalho, .busca-linha { flex-direction: column; align-items: stretch; }
   .form-linha input, .filtros select { width: 100%; }
 }
