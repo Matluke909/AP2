@@ -2,7 +2,6 @@ require('dotenv').config();
 const { createClient } = require('@supabase/supabase-js');
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
-
 const COLUNAS_ALUNO = 'id, nome, ra, curso_id, criado_em, curso:cursos(id, nome)';
 
 async function inserirCurso(nome) {
@@ -33,16 +32,26 @@ async function inserirAluno(nome, ra, cursoId) {
   return data;
 }
 
-async function listarAlunos({ inicio = 0, limite, cursoId, busca } = {}) {
+async function listarAlunos({ inicio = 0, limite, cursoId, busca, ordem, direcao } = {}) {
   let consulta = supabase
     .from('alunos')
     .select(COLUNAS_ALUNO, limite ? { count: 'exact' } : undefined);
 
   if (cursoId) consulta = consulta.eq('curso_id', cursoId);
+  
   if (busca) {
-    consulta = consulta.or(`nome.ilike.%${busca}%,ra.ilike.%${busca}%`);
+    const limpo = busca.replace(/[%,]/g, '').trim();
+    if (limpo) consulta = consulta.or(`nome.ilike.%${limpo}%,ra.ilike.%${limpo}%`);
   }
-  consulta = consulta.order(cursoId ? 'nome' : 'id', { ascending: true });
+
+  const ascendente = direcao !== 'desc';
+  if (ordem === 'curso') {
+    consulta = consulta.order('nome', { ascending: ascendente, foreignTable: 'cursos' });
+  } else if (ordem === 'nome' || ordem === 'ra') {
+    consulta = consulta.order(ordem, { ascending: ascendente });
+  }
+  consulta = consulta.order('id', { ascending: true });
+
   if (limite) consulta = consulta.range(inicio, inicio + limite - 1);
 
   const { data, error, count } = await consulta;
@@ -50,6 +59,7 @@ async function listarAlunos({ inicio = 0, limite, cursoId, busca } = {}) {
   if (!limite) return data || [];
   return { alunos: data || [], total: count ?? 0 };
 }
+
 async function listarAlunosDoCurso(cursoId, opcoes = {}) {
   return listarAlunos({ ...opcoes, cursoId });
 }

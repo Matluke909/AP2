@@ -17,6 +17,8 @@ const inputBusca = document.getElementById('busca-aluno');
 const criterioPesquisa = document.getElementById('criterio-pesquisa');
 
 let alunosBusca = '';
+let alunosOrdem = '';
+let alunosDirecao = 'asc';
 let modo = 'criar';
 let raEditando = '';
 let cursosCache = [];
@@ -172,7 +174,6 @@ function atualizarCriterioPesquisa() {
     criterioPesquisa.hidden = true;
     return;
   }
-
   const rotulo = document.createElement('span');
   rotulo.className = 'criterio-rotulo';
   rotulo.textContent = 'Critério de pesquisa:';
@@ -213,20 +214,37 @@ function pesquisarAlunos(evento) {
   listarAlunos(false);
 }
 
+function ordenarPorColuna(coluna) {
+  if (alunosOrdem === coluna) {
+    alunosDirecao = alunosDirecao === 'asc' ? 'desc' : 'asc';
+  } else {
+    alunosOrdem = coluna;
+    alunosDirecao = 'asc';
+  }
+  atualizarCabecalhosOrdem();
+  alunosInicio = 0;
+  listarAlunos(false);
+}
+
+function atualizarCabecalhosOrdem() {
+  document.querySelectorAll('.th-ordem').forEach(btn => {
+    const col = btn.getAttribute('data-ordem');
+    if (col === alunosOrdem) {
+      btn.classList.add('ativa');
+      btn.setAttribute('data-dir', alunosDirecao);
+    } else {
+      btn.classList.remove('ativa');
+      btn.removeAttribute('data-dir');
+    }
+  });
+}
+
 function linhaAluno(aluno) {
   const tr = document.createElement('tr');
-  
-  const tdNome = document.createElement('td');
-  tdNome.textContent = aluno.nome;
-  
-  const tdRa = document.createElement('td');
-  tdRa.textContent = aluno.ra;
-  
-  const tdCurso = document.createElement('td');
-  tdCurso.textContent = aluno.curso ? aluno.curso.nome : '';
-  
-  const tdAcoes = document.createElement('td');
-  tdAcoes.className = 'acoes';
+  const tdNome = document.createElement('td'); tdNome.textContent = aluno.nome;
+  const tdRa = document.createElement('td'); tdRa.textContent = aluno.ra;
+  const tdCurso = document.createElement('td'); tdCurso.textContent = aluno.curso ? aluno.curso.nome : '';
+  const tdAcoes = document.createElement('td'); tdAcoes.className = 'acoes';
   
   const btnEditar = document.createElement('button');
   btnEditar.textContent = 'Editar';
@@ -264,6 +282,10 @@ async function listarAlunos(acrescentar = false) {
     limite: String(ALUNOS_POR_PAGINA),
   });
   if (alunosBusca) params.set('busca', alunosBusca);
+  if (alunosOrdem) {
+    params.set('ordem', alunosOrdem);
+    params.set('direcao', alunosDirecao);
+  }
 
   try {
     const resposta = await fetch(`${base}?${params.toString()}`);
@@ -280,9 +302,7 @@ async function listarAlunos(acrescentar = false) {
     const listaAlunos = Array.isArray(dados) ? dados : (dados.alunos || []);
     alunosTotal = Array.isArray(dados) ? listaAlunos.length : (dados.total || 0);
     
-    if (!acrescentar) {
-      tabela.innerHTML = '';
-    }
+    if (!acrescentar) tabela.innerHTML = '';
     
     if (!listaAlunos.length && !acrescentar) {
       tabela.innerHTML = '<tr><td colspan="4" class="vazio">Nenhum aluno encontrado.</td></tr>';
@@ -291,17 +311,13 @@ async function listarAlunos(acrescentar = false) {
       return;
     }
     
-    for (const aluno of listaAlunos) {
-      tabela.appendChild(linhaAluno(aluno));
-    }
+    for (const aluno of listaAlunos) tabela.appendChild(linhaAluno(aluno));
     
     alunosInicio = inicio + listaAlunos.length;
     alunosTemMais = !Array.isArray(dados) && (alunosInicio < alunosTotal);
     
   } catch (err) {
-    if (pedido === alunosPedido) {
-      mostrarMsg('Erro de rede ao listar alunos', 'erro');
-    }
+    if (pedido === alunosPedido) mostrarMsg('Erro de rede ao listar alunos', 'erro');
   } finally {
     if (pedido === alunosPedido) {
       alunosCarregando = false;
@@ -331,9 +347,7 @@ function atualizarStatus() {
 function pedirMaisSeVisivel() {
   if (!alunosTemMais || alunosCarregando) return;
   const topo = sentinelaAlunos.getBoundingClientRect().top;
-  if (topo < window.innerHeight + 160) {
-    listarAlunos(true);
-  }
+  if (topo < window.innerHeight + 160) listarAlunos(true);
 }
 
 async function salvarAluno(evento) {
@@ -388,9 +402,7 @@ async function salvarAluno(evento) {
 
 async function excluirAluno(ra, nome) {
   if (!confirm(`Excluir o aluno "${nome}" (RA ${ra})?`)) return;
-  const resposta = await fetch('/alunos/' + encodeURIComponent(ra), {
-    method: 'DELETE',
-  });
+  const resposta = await fetch('/alunos/' + encodeURIComponent(ra), { method: 'DELETE' });
   const dados = await resposta.json();
   if (!resposta.ok) {
     mostrarMsg(dados.erro || 'Erro ao excluir aluno', 'erro');
@@ -418,7 +430,12 @@ filtroCurso.addEventListener('change', () => {
   alunosInicio = 0;
   listarAlunos(false);
 });
-window.addEventListener('scroll', pedirMaisSeVisivel);
+
+document.querySelectorAll('.th-ordem').forEach(btn => {
+  btn.addEventListener('click', () => ordenarPorColuna(btn.getAttribute('data-ordem')));
+});
+
+window.addEventListener('scroll', pedirMaisSeVisivel, { passive: true });
 window.addEventListener('resize', pedirMaisSeVisivel);
 
 atualizarTudo();
